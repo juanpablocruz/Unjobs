@@ -1,0 +1,4 @@
+HeroImage "C:\\Users\\Juan Pablo\\Pictures\\wow-dwarf-icon.png"
+MapWorld "C:\\Users\\Juan Pablo\\workspace\\Engine\\mapa.txt
+OLayer "C:\\Users\\Juan Pablo\\workspace\\Engine\\mapa.txt"
+NPCLayer "C:\\Users\\Juan Pablo\\workspace\\Engine\\mapa.txt"

@@ -6,6 +6,12 @@ import java.util.Scanner;
 import engine.Engine;
 import engine.Functions.*;
 
+/**
+ * @author Juan Pablo Cruz
+ * @category Layer
+ * @description Layer reader
+ */
+
 public class Layer {
 	private String file;
 	

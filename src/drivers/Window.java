@@ -15,7 +15,7 @@ public class Window implements WindowListener{
 	}
 
 	public void windowClosed(WindowEvent e) {
-        interfaz.canvas.condicion = false;
+        //interfaz.canvas.condicion = false;
         System.exit(0);
 	}
 

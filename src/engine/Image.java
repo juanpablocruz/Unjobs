@@ -10,11 +10,14 @@ import javax.swing.JPanel;
 public class Image extends JPanel{
 
 	private static final long serialVersionUID = 1L;
+	public String imageName;
 	private BufferedImage image;
     private int x,y;
+    
     public Image(String imagename,int x, int y) {
     	this.x = x;
     	this.y = y;
+    	this.imageName = imagename;
        try {                
           image = ImageIO.read(new File(imagename));
        } catch (IOException ex) {

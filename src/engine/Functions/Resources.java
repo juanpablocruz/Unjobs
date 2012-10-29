@@ -43,7 +43,6 @@ public class Resources {
 						   Engine.NPCLayer = fila;
 						   break;
 					   }
-					   Engine.print("Loading "+fila+"...");
 				    }
 				    colReader.close();
 			  }

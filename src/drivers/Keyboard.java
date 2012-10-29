@@ -1,6 +1,6 @@
 package drivers;
 
-import gui.GUI;
+import gui.*;
 import characters.Hero;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -27,7 +27,7 @@ public class Keyboard implements KeyListener{
         	this.heroe.movement(-10,0);
         	break;
         case KeyEvent.VK_SPACE:
-        	interfaz.canvas.condicion = false;
+        	//interfaz.canvas.condicion = false;
         	break;
         }
         

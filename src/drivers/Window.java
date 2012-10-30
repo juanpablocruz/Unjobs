@@ -1,22 +1,23 @@
 package drivers;
 
+import engine.Engine;
 import gui.GUI;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 public class Window implements WindowListener{
-    GUI interfaz;
+    private GUI interfaz;
 
     public Window(GUI objeto){
-    	interfaz = objeto;
+    	this.interfaz = objeto;
     }
 	
 	public void windowActivated(WindowEvent e) {
 	}
 
 	public void windowClosed(WindowEvent e) {
-        //interfaz.canvas.condicion = false;
-        System.exit(0);
+        //Engine.print("He cerado");
+		//System.exit(0);
 	}
 
 	public void windowClosing(WindowEvent e) {

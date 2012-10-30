@@ -9,6 +9,9 @@ public class Tile {
 	private int tiletype;
 	private boolean collide;
 	public int id;
+	enum orient{
+		NORMAL, FLIP_HORIZ, FLIP_VERT, ROT90,ROT180,ROT270
+	}
 	
 	public Tile(int identificador,int x, int y, String imagename, int tiletype, boolean collide){
 		this.posicion = new Position(x,y);

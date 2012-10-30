@@ -2,11 +2,13 @@ package engine;
 
 import mapa.*;
 import gui.*;
-import drivers.Mouse;
+import drivers.Window;
 import engine.Functions.*;
 import characters.*;
 
 import java.awt.BorderLayout;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.util.Scanner;
 
 import javax.media.opengl.GLCapabilities;
@@ -21,13 +23,14 @@ import javax.swing.JFrame;
 
 public class Engine {
 	
-	public static List mapWorld,olayer,npclayer;
-	public static Mouse mouse;
+	public static int[][] mapWorld,olayer,npclayer;
 	public static Hero Heroe;
 	public static GUI interfaz;
 	public static String World;
 	public static String HeroImage,MapWorld,OLayer,NPCLayer;
 	public static JFrame gui;
+	public static boolean fullScreen = true;
+	public static GraphicsDevice device;
 	
 	public static <T> void print(T text){
 		/**
@@ -50,9 +53,8 @@ public class Engine {
 		print("Loading maps..");
 		//Layer mapa = new Layer(MapWorld);
 		//mapWorld = mapa.Read();
-		mapWorld = new List(1);
-		mapWorld.lista[0] = 1;
-		
+		mapWorld = new int[200][200];
+		mapWorld[0][0] = 1;
 		if(mapWorld==null){
 			print("Error loading maps");
 			return 0;
@@ -60,10 +62,25 @@ public class Engine {
 		else{
 			//Creates the window.
 			GLCapabilities capabilities = GUI.createGLCapabilities();
-	        interfaz = new GUI(500, 800, capabilities);
+	        interfaz = new GUI(800, 500, capabilities);
 	        gui = new JFrame("Engine");
+	        
+	        //Full screen display
+	        device = GraphicsEnvironment.getLocalGraphicsEnvironment()
+		            .getDefaultScreenDevice();
+		    if (device.isFullScreenSupported()) { // Go for full-screen mode
+		    	gui.setUndecorated(true);         // Don't show title and border
+		        gui.setResizable(false);
+		        gui.setIgnoreRepaint(true);     // Ignore OS re-paint request
+		        device.setFullScreenWindow(gui);
+		        fullScreen = true;
+		    } else {      // Windowed mode
+		    	gui.setSize(800, 500);
+		        gui.setResizable(true);
+		        fullScreen = false;
+		    }
+		    gui.addWindowListener(new Window(interfaz));
 	        gui.getContentPane().add(interfaz, BorderLayout.CENTER);
-	        gui.setSize(800, 500);
 	        gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        print("Done");
 		}
@@ -73,9 +90,10 @@ public class Engine {
 		print("Loading Object layer");
 		//Layer objectlayer = new Layer(OLayer);
 		//olayer = objectlayer.Read();
-		olayer = new List(1);
-		olayer.lista[0] = 1;
-		if(olayer==null){
+		//interfaz.loadTextures("C:\\tree.png");
+		olayer = new int[200][200];
+		olayer[0][0]=1;
+		if(olayer ==null){
 			print("Error loading Object layer");
 			return 0;
 		}
@@ -88,8 +106,9 @@ public class Engine {
 		print("Populating world");
 		//Layer npcmap = new Layer(NPCLayer);
 		//npclayer = npcmap.Read();
-		npclayer = new List(1);
-		npclayer.lista[0]=1;
+		npclayer = new int[200][200];
+		npclayer[0][0] = 1;
+		
 		if(npclayer==null){
 			print("Error loading Object layer");
 			return 0;

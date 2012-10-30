@@ -1,8 +1,18 @@
 package gui;
 
+import java.awt.Graphics2D;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.ByteBuffer;
 
+import javax.imageio.ImageIO;
 import javax.media.opengl.DebugGL;
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
@@ -15,8 +25,9 @@ import characters.Hero;
 
 import com.sun.opengl.util.FPSAnimator;
 import com.sun.opengl.util.texture.Texture;
-import com.sun.opengl.util.texture.TextureData;
-import com.sun.opengl.util.texture.TextureIO;
+import drivers.Keyboard;
+import drivers.Mouse;
+import engine.Image;
 
 /**
  * @author Juan Pablo Cruz
@@ -27,8 +38,10 @@ public class GUI extends GLCanvas implements GLEventListener{
 	private static final long serialVersionUID = 1L;
 	private Texture heroTexture;
 	public FPSAnimator animator;
+	public int Squarex = 0,Squarey=0;
 	private GLU glu;
 	private GL gl;
+	public BufferedImage bufferedImage = null;
 	private GLAutoDrawable gLDrawable;
 	
 	public GUI(int width, int height, GLCapabilities capabilities) {
@@ -38,6 +51,7 @@ public class GUI extends GLCanvas implements GLEventListener{
 		 * where magic happens.</p>
 		 */
 		super(capabilities);
+		  // Get the default graphic device and try full screen mode		
         setSize(width, height);
         addGLEventListener(this);
 	}
@@ -65,6 +79,14 @@ public class GUI extends GLCanvas implements GLEventListener{
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glLoadIdentity();
     }
+	
+	private static int ceilingPow2(int n) {
+		int pow2 = 1;
+		while (n > pow2) {
+		pow2 = pow2<<1;
+		}
+		return pow2;
+	}
 	
 	public void display(GLAutoDrawable gLDrawable)
 	{		
@@ -109,7 +131,9 @@ public class GUI extends GLCanvas implements GLEventListener{
         setCamera(gl, glu, 100);
         
         //Draw square.
-        this.drawSquare(gLDrawable, 0, 0, 10,gl);
+        this.drawSquare(gLDrawable, Squarex, Squarey, 10,gl);
+        
+        this.drawSquare(gLDrawable, 20, 20, 10, this.gl); 
         
         
 	}
@@ -124,6 +148,8 @@ public class GUI extends GLCanvas implements GLEventListener{
 		this.gLDrawable = gLDrawable;
 		final GL gl = gLDrawable.getGL();	
 		gLDrawable.setGL(new DebugGL(gl));
+		gLDrawable.addKeyListener(new Keyboard(this));
+		gLDrawable.addMouseListener(new Mouse(this));
 		
 		// Enable z- (depth) buffer for hidden surface removal. 
         gl.glEnable(GL.GL_DEPTH_TEST);
@@ -143,23 +169,61 @@ public class GUI extends GLCanvas implements GLEventListener{
         
         // Start animator (which should be a field).
         animator = new FPSAnimator(this, 75);
-        animator.start();	        
+        animator.start();	      
+     
 	}
 	public void drawHero(Hero heroe){
-		loadTextures(heroe.Chartile.imagen.imageName, heroTexture);
-		this.drawSquare(gLDrawable, heroe.Chartile.posicion.x, heroe.Chartile.posicion.y, 10, this.gl);    
+		loadTextures(heroe.Chartile.imagen.imageName);
+		this.drawSquare(gLDrawable, heroe.Chartile.posicion.x, heroe.Chartile.posicion.y, 10, this.gl); 
 	}
 	
-	private void loadTextures(String image, Texture textura){
-		try {
-            InputStream stream = getClass().getResourceAsStream(image);
-            TextureData data = TextureIO.newTextureData(stream, false, "png");
-            textura = TextureIO.newTexture(data);
-        }
-        catch (IOException exc) {
-            exc.printStackTrace();
-            System.exit(1);
-        }
+	public void loadTextures(String image){
+		
+		int w = 0;
+		int h = 0;
+		Image imagen = new Image(image, 10, 10);
+		w = ceilingPow2(imagen.getWidth());
+	    h = ceilingPow2(imagen.getHeight());
+	    
+		WritableRaster raster = Raster.createInterleavedRaster (DataBuffer.TYPE_BYTE,w,h,4,null);
+		ComponentColorModel colorModel=
+			new ComponentColorModel (ColorSpace.getInstance(ColorSpace.CS_sRGB),
+					new int[] {8,8,8,8},true,false,ComponentColorModel.TRANSLUCENT,
+					DataBuffer.TYPE_BYTE);
+		BufferedImage dukeImg = new BufferedImage (colorModel,raster,false,null);
+ 
+		Graphics2D g = dukeImg.createGraphics();
+		imagen.paintComponent(g);
+		DataBufferByte dukeBuf = (DataBufferByte)raster.getDataBuffer();
+		byte[] dukeRGBA = dukeBuf.getData();
+		ByteBuffer bb = ByteBuffer.wrap(dukeRGBA);
+		bb.position(0);
+		bb.mark();
+				gl.glBindTexture(GL.GL_TEXTURE_2D, 13);
+				gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
+				gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP);
+				gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP);
+				gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+				gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
+				gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
+				gl.glTexImage2D (GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, w, h, 0, GL.GL_RGBA, 
+						GL.GL_UNSIGNED_BYTE, bb);
+	 
+				int left = 100;
+				int top = 100;
+				gl.glEnable(GL.GL_TEXTURE_2D);
+				gl.glBindTexture (GL.GL_TEXTURE_2D, 13);
+				gl.glBegin (GL.GL_POLYGON);
+				gl.glTexCoord2d (0, 0);
+				gl.glVertex2d (left,top);
+				gl.glTexCoord2d(1,0);
+				gl.glVertex2d (left + w, top);
+				gl.glTexCoord2d(1,1);
+				gl.glVertex2d (left + w, top + h);
+				gl.glTexCoord2d(0,1);
+				gl.glVertex2d (left, top + h);
+				gl.glEnd ();	
+				gl.glFlush();
 	}
 	
 	public void reshape(GLAutoDrawable gLDrawable, int x, int y, int width, int height)

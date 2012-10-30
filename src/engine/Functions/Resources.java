@@ -27,7 +27,7 @@ public class Resources {
 					   case "MapWorld":
 						   fila = colReader.next();
 						   fila += " ";
-						   fila += colReader.next()+'"';
+						   fila += colReader.next();
 						   Engine.MapWorld = fila;
 						   break;
 					   case "OLayer":

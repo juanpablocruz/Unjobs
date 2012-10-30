@@ -19,19 +19,23 @@ public class Layer {
 		this.file = archivo;
 	}
 	
-	public List Read() {
+	public int[][] Read() {
 		try{
 			
-			List mapa = new List(0);
+			int[][] mapa = new int[200][200];
 			Scanner filein = new Scanner(new File(this.file));
+			int i = 0;
 			  while (filein.hasNextLine()){
 				  Scanner colReader = new Scanner(filein.nextLine());
-				   List col = new List(0);
+				   int[] col = new int[200];
+				   int j = 0;
 				   while(colReader.hasNextInt())
 				    {
-				        col.append(colReader.nextInt());
+				        col[j] = colReader.nextInt();
+				        j++;
 				    }
-				    mapa.append(col);
+				    mapa[i] = col;
+				    i++;
 				    colReader.close();
 			  }
 			  filein.close();
